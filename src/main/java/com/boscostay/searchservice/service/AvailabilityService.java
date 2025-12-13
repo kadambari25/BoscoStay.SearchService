@@ -2,63 +2,74 @@ package com.boscostay.searchservice.service;
 
 import com.boscostay.searchservice.model.Apartment;
 import com.boscostay.searchservice.model.Booking;
+import com.boscostay.searchservice.repository.ApartmentRepository;
+import com.boscostay.searchservice.repository.BookingRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 public class AvailabilityService {
 
-    // Demo apartments – later you can replace with real data from the apartments service
-    private final List<Apartment> apartments = List.of(
-            new Apartment(1L, "Cozy Studio", "Rome"),
-            new Apartment(2L, "Sea View Apartment", "Naples"),
-            new Apartment(3L, "City Center Loft", "Milan")
-    );
+    private final ApartmentRepository apartmentRepository;
+    private final BookingRepository bookingRepository;
 
-    // Map: apartmentId -> list of bookings
-    private final Map<Long, List<Booking>> bookingsByApartment = new ConcurrentHashMap<>();
-
-    public void addBooking(Booking booking) {
-        bookingsByApartment
-                .computeIfAbsent(booking.getApartmentId(), id -> new ArrayList<>())
-                .add(booking);
+    public AvailabilityService(ApartmentRepository apartmentRepository,
+                               BookingRepository bookingRepository) {
+        this.apartmentRepository = apartmentRepository;
+        this.bookingRepository = bookingRepository;
     }
 
-    /**
-     * Original method: finds available apartments between two dates.
-     */
-    public List<Apartment> findAvailable(LocalDate from, LocalDate to) {
+    public List<Apartment> searchAvailableApartments(String city,
+                                                     LocalDate checkIn,
+                                                     LocalDate checkOut) {
+
+        // 1) apartments in city
+        List<Apartment> apartments = apartmentRepository.findByCityIgnoreCase(city);
+        if (apartments.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // 2) bookings for those apartments
+        List<Long> apartmentIds = apartments.stream()
+                .map(Apartment::getId)
+                .collect(Collectors.toList());
+
+        List<Booking> bookings =
+                bookingRepository.findByApartmentIdIn(apartmentIds);
+
+        Map<Long, List<Booking>> bookingsByApartment = bookings.stream()
+                .collect(Collectors.groupingBy(Booking::getApartmentId));
+
+        // 3) filter by overlapping bookings
         return apartments.stream()
-                .filter(apartment -> isAvailable(apartment.getId(), from, to))
+                .filter(a -> isApartmentAvailable(a.getId(), checkIn, checkOut, bookingsByApartment))
                 .collect(Collectors.toList());
     }
 
-    /**
-     * New method used by SearchController.
-     * It simply delegates to findAvailable(...) to keep the logic in one place.
-     */
-    public List<Apartment> findAvailableApartments(LocalDate fromDate, LocalDate toDate) {
-        return findAvailable(fromDate, toDate);
-    }
+    private boolean isApartmentAvailable(Long apartmentId,
+                                         LocalDate reqStart,
+                                         LocalDate reqEnd,
+                                         Map<Long, List<Booking>> bookingsByApartment) {
 
-    private boolean isAvailable(Long apartmentId, LocalDate from, LocalDate to) {
-        List<Booking> bookings = bookingsByApartment
-                .getOrDefault(apartmentId, Collections.emptyList());
+        List<Booking> existingBookings =
+                bookingsByApartment.getOrDefault(apartmentId, Collections.emptyList());
 
-        // Two date ranges overlap if: start1 < end2 AND start2 < end1
-        for (Booking b : bookings) {
-            if (b.getStartDate().isBefore(to) && from.isBefore(b.getEndDate())) {
-                // overlap → not available
+        for (Booking booking : existingBookings) {
+            if (datesOverlap(reqStart, reqEnd,
+                    booking.getCheckInDate(), booking.getCheckOutDate())) {
                 return false;
             }
         }
         return true;
+    }
+
+    private boolean datesOverlap(LocalDate reqStart,
+                                 LocalDate reqEnd,
+                                 LocalDate existingStart,
+                                 LocalDate existingEnd) {
+        return !(reqEnd.isBefore(existingStart) || reqStart.isAfter(existingEnd));
     }
 }

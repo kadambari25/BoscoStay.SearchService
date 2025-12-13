@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  search-postgres:
+    image: postgres:15
+    container_name: search-postgres
+    environment:
+      POSTGRES_USER: searchuser
+      POSTGRES_PASSWORD: searchpass
+      POSTGRES_DB: searchdb
+    ports:
+      - "5433:5432"
+    volumes:
+      - search_postgres_data:/var/lib/postgresql/data
+    restart: always
+
+volumes:
+  search_postgres_data:

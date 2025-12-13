@@ -1,8 +1,9 @@
 package com.boscostay.searchservice.messaging;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 
-public class SearchRequestMessage {
+public class SearchRequestMessage implements Serializable {
 
     private LocalDate fromDate;
     private LocalDate toDate;

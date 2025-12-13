@@ -1,42 +1,57 @@
 package com.boscostay.searchservice.model;
 
+import jakarta.persistence.*;
 import java.time.LocalDate;
 
+@Entity
+@Table(name = "bookings") // matches your DB table
 public class Booking {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "apartment_id")
     private Long apartmentId;
-    private LocalDate startDate;
-    private LocalDate endDate;
+
+    @Column(name = "check_in_date")
+    private LocalDate checkInDate;
+
+    @Column(name = "check_out_date")
+    private LocalDate checkOutDate;
 
     public Booking() {
     }
 
-    public Booking(Long apartmentId, LocalDate startDate, LocalDate endDate) {
-        this.apartmentId = apartmentId;
-        this.startDate = startDate;
-        this.endDate = endDate;
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public Long getApartmentId() {
         return apartmentId;
     }
 
-    public LocalDate getStartDate() {
-        return startDate;
-    }
-
-    public LocalDate getEndDate() {
-        return endDate;
-    }
-
     public void setApartmentId(Long apartmentId) {
         this.apartmentId = apartmentId;
     }
 
-    public void setStartDate(LocalDate startDate) {
-        this.startDate = startDate;
+    public LocalDate getCheckInDate() {
+        return checkInDate;
     }
 
-    public void setEndDate(LocalDate endDate) {
-        this.endDate = endDate;
+    public void setCheckInDate(LocalDate checkInDate) {
+        this.checkInDate = checkInDate;
+    }
+
+    public LocalDate getCheckOutDate() {
+        return checkOutDate;
+    }
+
+    public void setCheckOutDate(LocalDate checkOutDate) {
+        this.checkOutDate = checkOutDate;
     }
 }

@@ -9,22 +9,17 @@ import org.springframework.stereotype.Component;
 @Component
 public class SearchListener {
 
-    private static final Logger log = LoggerFactory.getLogger(SearchListener.class);
+    private static final Logger logger = LoggerFactory.getLogger(SearchListener.class);
 
-    public SearchListener() {
-        log.info("🔧 SearchListener CONSTRUCTED");
-    }
-
-    // Listener for simple string test messages (from /test-message)
-    @RabbitListener(queues = RabbitMQConfig.SEARCH_QUEUE)
+    // Listener for /test-message
+    @RabbitListener(queues = RabbitMQConfig.SEARCH_TEST_QUEUE)
     public void handleTestMessage(String message) {
-        log.info("📩 [TEST] Received message from search queue: {}", message);
+        logger.info("[TEST] Received message from test queue: {}", message);
     }
 
-    // Listener for real search requests (from the POST /api/search)
+    // Listener for /available search requests
     @RabbitListener(queues = RabbitMQConfig.SEARCH_REQUEST_QUEUE)
-    public void handleSearchRequest(SearchRequestMessage request) {
-        log.info("📩 [SEARCH] Received search request: from={} to={}",
-                 request.getFromDate(), request.getToDate());
+    public void handleSearchRequest(String message) {
+        logger.info("[SEARCH] Received search request message: {}", message);
     }
 }
