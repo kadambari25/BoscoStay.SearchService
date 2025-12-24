@@ -1,6 +1,7 @@
-version: '3.8'
+version: "3.8"
 
 services:
+
   search-postgres:
     image: postgres:15
     container_name: search-postgres
@@ -12,6 +13,30 @@ services:
       - "5433:5432"
     volumes:
       - search_postgres_data:/var/lib/postgresql/data
+    restart: always
+
+  rabbitmq-search:
+    image: rabbitmq:3-management
+    container_name: rabbitmq-search
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    restart: always
+
+  search-service:
+    build: .
+    container_name: search-service
+    ports:
+      - "8080:8080"
+    depends_on:
+      - search-postgres
+      - rabbitmq-search
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://search-postgres:5432/searchdb
+      SPRING_DATASOURCE_USERNAME: searchuser
+      SPRING_DATASOURCE_PASSWORD: searchpass
+      SPRING_RABBITMQ_HOST: rabbitmq-search
+      SPRING_RABBITMQ_PORT: 5672
     restart: always
 
 volumes:
