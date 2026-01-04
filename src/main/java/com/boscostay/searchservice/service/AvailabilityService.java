@@ -17,17 +17,17 @@ public class AvailabilityService {
     private final BookingRepository bookingRepository;
 
     public AvailabilityService(ApartmentRepository apartmentRepository,
-                               BookingRepository bookingRepository) {
+            BookingRepository bookingRepository) {
         this.apartmentRepository = apartmentRepository;
         this.bookingRepository = bookingRepository;
     }
 
     public List<Apartment> searchAvailableApartments(String city,
-                                                     LocalDate checkIn,
-                                                     LocalDate checkOut) {
+            LocalDate checkIn,
+            LocalDate checkOut) {
 
         // 1) apartments in city
-        List<Apartment> apartments = apartmentRepository.findByCityIgnoreCase(city);
+        List<Apartment> apartments = apartmentRepository.findByAddressIgnoreCase(city);
         if (apartments.isEmpty()) {
             return Collections.emptyList();
         }
@@ -37,8 +37,7 @@ public class AvailabilityService {
                 .map(Apartment::getId)
                 .collect(Collectors.toList());
 
-        List<Booking> bookings =
-                bookingRepository.findByApartmentIdIn(apartmentIds);
+        List<Booking> bookings = bookingRepository.findByApartmentIdIn(apartmentIds);
 
         Map<UUID, List<Booking>> bookingsByApartment = bookings.stream()
                 .collect(Collectors.groupingBy(Booking::getApartmentId));
@@ -50,12 +49,11 @@ public class AvailabilityService {
     }
 
     private boolean isApartmentAvailable(UUID apartmentId,
-                                         LocalDate reqStart,
-                                         LocalDate reqEnd,
-                                         Map<UUID, List<Booking>> bookingsByApartment) {
+            LocalDate reqStart,
+            LocalDate reqEnd,
+            Map<UUID, List<Booking>> bookingsByApartment) {
 
-        List<Booking> existingBookings =
-                bookingsByApartment.getOrDefault(apartmentId, Collections.emptyList());
+        List<Booking> existingBookings = bookingsByApartment.getOrDefault(apartmentId, Collections.emptyList());
 
         for (Booking booking : existingBookings) {
             if (datesOverlap(reqStart, reqEnd,
@@ -67,9 +65,9 @@ public class AvailabilityService {
     }
 
     private boolean datesOverlap(LocalDate reqStart,
-                                 LocalDate reqEnd,
-                                 LocalDate existingStart,
-                                 LocalDate existingEnd) {
+            LocalDate reqEnd,
+            LocalDate existingStart,
+            LocalDate existingEnd) {
         return !(reqEnd.isBefore(existingStart) || reqStart.isAfter(existingEnd));
     }
 }

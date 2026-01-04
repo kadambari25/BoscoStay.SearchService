@@ -15,7 +15,7 @@ public class Apartment {
     @Column(nullable = false)
     private String address;
 
-    @Column(nullable = false, precision = 10, scale = 2)
+    @Column
     private Double areaInSquareMeters;
 
     @Column(nullable = false)
@@ -33,7 +33,7 @@ public class Apartment {
     @Column
     private String description;
 
-    @Column(nullable = false, precision = 10, scale = 2)
+    @Column
     private Double distanceToCenterInKm;
 
     @Column(nullable = false)
@@ -42,7 +42,7 @@ public class Apartment {
     @Column(nullable = false)
     private Boolean isDeleted;
 
-    @Column(nullable = false)
+    @Column
     private Boolean isFurnished;
 
     @Column(nullable = false)
@@ -55,7 +55,7 @@ public class Apartment {
     @Column(nullable = false)
     private NoiseLevel noiseLevel;
 
-    @Column(nullable = false, precision = 10, scale = 2)
+    @Column
     private Double pricePerDay;
 
     @Column
