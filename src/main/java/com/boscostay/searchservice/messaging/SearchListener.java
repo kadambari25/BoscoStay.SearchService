@@ -11,11 +11,11 @@ public class SearchListener {
 
     private static final Logger logger = LoggerFactory.getLogger(SearchListener.class);
 
-    // Listener for /test-message
-    @RabbitListener(queues = RabbitMQConfig.SEARCH_TEST_QUEUE)
-    public void handleTestMessage(String message) {
-        logger.info("[TEST] Received message from test queue: {}", message);
-    }
+    // // Listener for /test-message
+    // @RabbitListener(queues = RabbitMQConfig.SEARCH_TEST_QUEUE)
+    // public void handleTestMessage(String message) {
+    //     logger.info("[TEST] Received message from test queue: {}", message);
+    // }
 
     // Listener for /available search requests
     @RabbitListener(queues = RabbitMQConfig.SEARCH_REQUEST_QUEUE)
