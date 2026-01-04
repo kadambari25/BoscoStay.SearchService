@@ -2,6 +2,7 @@ package com.boscostay.searchservice.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.util.UUID;
 
 @Entity
 @Table(name = "bookings") // matches your DB table
@@ -12,7 +13,7 @@ public class Booking {
     private Long id;
 
     @Column(name = "apartment_id")
-    private Long apartmentId;
+    private UUID apartmentId;
 
     @Column(name = "check_in_date")
     private LocalDate checkInDate;
@@ -31,11 +32,11 @@ public class Booking {
         this.id = id;
     }
 
-    public Long getApartmentId() {
+    public UUID getApartmentId() {
         return apartmentId;
     }
 
-    public void setApartmentId(Long apartmentId) {
+    public void setApartmentId(UUID apartmentId) {
         this.apartmentId = apartmentId;
     }
 

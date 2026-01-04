@@ -33,14 +33,14 @@ public class AvailabilityService {
         }
 
         // 2) bookings for those apartments
-        List<Long> apartmentIds = apartments.stream()
+        List<UUID> apartmentIds = apartments.stream()
                 .map(Apartment::getId)
                 .collect(Collectors.toList());
 
         List<Booking> bookings =
                 bookingRepository.findByApartmentIdIn(apartmentIds);
 
-        Map<Long, List<Booking>> bookingsByApartment = bookings.stream()
+        Map<UUID, List<Booking>> bookingsByApartment = bookings.stream()
                 .collect(Collectors.groupingBy(Booking::getApartmentId));
 
         // 3) filter by overlapping bookings
@@ -49,10 +49,10 @@ public class AvailabilityService {
                 .collect(Collectors.toList());
     }
 
-    private boolean isApartmentAvailable(Long apartmentId,
+    private boolean isApartmentAvailable(UUID apartmentId,
                                          LocalDate reqStart,
                                          LocalDate reqEnd,
-                                         Map<Long, List<Booking>> bookingsByApartment) {
+                                         Map<UUID, List<Booking>> bookingsByApartment) {
 
         List<Booking> existingBookings =
                 bookingsByApartment.getOrDefault(apartmentId, Collections.emptyList());
