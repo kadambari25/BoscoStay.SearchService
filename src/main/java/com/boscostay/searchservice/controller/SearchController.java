@@ -14,43 +14,17 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/search")
 public class SearchController {
 
         private static final Logger logger = LoggerFactory.getLogger(SearchController.class);
 
-        private final RabbitTemplate rabbitTemplate;
         private final AvailabilityService availabilityService;
 
-        public SearchController(RabbitTemplate rabbitTemplate,
-                        AvailabilityService availabilityService) {
-                this.rabbitTemplate = rabbitTemplate;
+        public SearchController(AvailabilityService availabilityService) {
                 this.availabilityService = availabilityService;
         }
 
-        /**
-         * 1) RabbitMQ TEST endpoint
-         * This is ONLY to prove RabbitMQ is working.
-         * Swagger will ALWAYS show a response.
-         */
-        @GetMapping("/test-message")
-        public ResponseEntity<String> sendTestMessage() {
-                String message = "hello from search service";
-
-                rabbitTemplate.convertAndSend(
-                                RabbitMQConfig.SEARCH_BOOKING_QUEUE,
-                                message);
-
-                logger.info("Sent test message to RabbitMQ: {}", message);
-
-                return ResponseEntity.ok(
-                                "RabbitMQ test successful. Message sent: " + message);
-        }
-
-        /**
-         * 2) Search available apartments
-         */
-        @GetMapping("/available")
+        @GetMapping("/")
         public ResponseEntity<List<Apartment>> searchAvailableApartments(
                         @RequestParam("city") String address,
                         @RequestParam("checkIn") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkIn,
