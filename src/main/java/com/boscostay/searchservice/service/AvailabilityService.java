@@ -22,17 +22,14 @@ public class AvailabilityService {
         this.bookingRepository = bookingRepository;
     }
 
-    public List<Apartment> searchAvailableApartments(String city,
+    public List<Apartment> searchAvailableApartments(String address,
             LocalDate checkIn,
             LocalDate checkOut) {
-
-        // 1) apartments in city
-        List<Apartment> apartments = apartmentRepository.findByAddressIgnoreCase(city);
+        List<Apartment> apartments = apartmentRepository.findByAddressIgnoreCase(address);
         if (apartments.isEmpty()) {
             return Collections.emptyList();
         }
 
-        // 2) bookings for those apartments
         List<UUID> apartmentIds = apartments.stream()
                 .map(Apartment::getId)
                 .collect(Collectors.toList());
@@ -42,7 +39,6 @@ public class AvailabilityService {
         Map<UUID, List<Booking>> bookingsByApartment = bookings.stream()
                 .collect(Collectors.groupingBy(Booking::getApartmentId));
 
-        // 3) filter by overlapping bookings
         return apartments.stream()
                 .filter(a -> isApartmentAvailable(a.getId(), checkIn, checkOut, bookingsByApartment))
                 .collect(Collectors.toList());

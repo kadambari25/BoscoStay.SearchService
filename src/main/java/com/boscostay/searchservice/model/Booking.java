@@ -12,6 +12,9 @@ public class Booking {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true)
+    private String bookingId;
+
     @Column(name = "apartment_id")
     private UUID apartmentId;
 
@@ -22,6 +25,14 @@ public class Booking {
     private LocalDate checkOutDate;
 
     public Booking() {
+    }
+
+    public String getBookingId() {
+        return bookingId;
+    }
+
+    public void setBookingId(String bookingId) {
+        this.bookingId = bookingId;
     }
 
     public Long getId() {
