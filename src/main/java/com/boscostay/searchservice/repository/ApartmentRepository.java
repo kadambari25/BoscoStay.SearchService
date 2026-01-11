@@ -12,7 +12,8 @@ import java.util.UUID;
 
 public interface ApartmentRepository extends JpaRepository<Apartment, UUID> {
 
-    List<Apartment> findByAddressIgnoreCase(String address);
+    @Query("SELECT a FROM Apartment a WHERE upper(a.address) LIKE %?1%")
+    List<Apartment> findByAddressContainsText(String address);
 
     // Use JpaRepository.save(...) from your service; no need to redeclare save
     // here.
